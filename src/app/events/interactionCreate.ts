@@ -16,11 +16,7 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
 
   // Get the user id
   const userId = interaction?.user?.id ?? interaction?.member?.user.id ?? null;
-  const inGuild =
-    !!interaction?.guild ??
-    interaction?.inGuild() ??
-    !!interaction?.guildId ??
-    false;
+  const inGuild = interaction?.inGuild() ?? !!interaction?.guildId ?? false;
 
   // Check if the interaction is a DM
   if (!inGuild) {

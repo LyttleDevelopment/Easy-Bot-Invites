@@ -3,7 +3,7 @@ import { REST, Routes } from 'discord.js';
 import { environment } from './environment';
 import { log } from './log';
 import { LogType } from '../types';
-import { commands } from '../modules/commands/handler/commands';
+import { commands } from '../modules/interactions/commands/commands';
 
 export async function deployCommands(): Promise<void> {
   // Only deploy if --deploy-commands is passed

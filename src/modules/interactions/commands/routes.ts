@@ -1,4 +1,4 @@
-import { setupCommand } from '../setup-command';
+import { setupCommand } from '../../commands/setup-command';
 import { CommandRoutes } from './command-types';
 
 /**

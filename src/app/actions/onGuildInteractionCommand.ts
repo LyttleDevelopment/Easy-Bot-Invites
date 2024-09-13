@@ -2,7 +2,7 @@ import { executor } from '../../utils';
 import { actionPrefix } from './index';
 import { CommandInteraction } from 'discord.js';
 import { GuildMember } from '../../types';
-import { routeCommand } from '../../modules/commands/handler/route-command';
+import { routeCommand } from '../../modules/interactions/commands/route-command';
 
 // This file's prefix
 const prefix: string = actionPrefix + 'onGuildInteractionCommand.';
