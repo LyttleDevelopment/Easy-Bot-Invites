@@ -1,4 +1,4 @@
-import {setupCommandData} from '../../commands/setup-command';
+import {setupCommandData} from '../../commands/setup/setup-command';
 
 /**
  * All registered commands DATA

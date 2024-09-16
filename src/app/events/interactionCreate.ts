@@ -9,6 +9,10 @@ import {
   onPrivateInteractionCommand,
   onPrivateInteractionModalSubmit,
 } from '../actions';
+import { onPrivateInteractionStringSelectMenu } from '../actions/onPrivateInteractionStringSelectMenu';
+import { onGuildInteractionChannelSelectMenu } from '../actions/onGuildInteractionChannelSelectMenu';
+import { onPrivateInteractionChannelSelectMenu } from '../actions/onPrivateInteractionChannelSelectMenu';
+import { onGuildInteractionStringSelectMenu } from '../actions/onGuildInteractionStringSelectMenu';
 
 async function interactionCreate(interaction: Interaction): Promise<void> {
   // Ignore bots
@@ -36,6 +40,14 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
     // Check if the interaction is a modal submit
     if (interaction.isModalSubmit()) {
       return onPrivateInteractionModalSubmit(userId, interaction);
+    }
+
+    if (interaction.isStringSelectMenu()) {
+      return onPrivateInteractionStringSelectMenu(userId, interaction);
+    }
+
+    if (interaction.isChannelSelectMenu()) {
+      return onPrivateInteractionChannelSelectMenu(userId, interaction);
     }
   }
 
@@ -68,6 +80,14 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
     // Check if the interaction is a modal submit
     if (interaction.isModalSubmit()) {
       return onGuildInteractionModalSubmit(guildMember, interaction);
+    }
+
+    if (interaction.isStringSelectMenu()) {
+      return onGuildInteractionStringSelectMenu(guildMember, interaction);
+    }
+
+    if (interaction.isChannelSelectMenu()) {
+      return onGuildInteractionChannelSelectMenu(guildMember, interaction);
     }
   }
 }
