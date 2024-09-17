@@ -1,16 +1,15 @@
-import { ButtonInteraction } from 'discord.js';
 import { GuildMember } from '../../types';
 import { executor } from '../../utils';
-import { routeButtonPress } from '../../modules/interactions/button';
+import { Message } from 'discord.js';
+import { routeMessage } from '../../modules/interactions/message';
 
-// The execute function
-export async function onGuildInteractionButton(
+export async function onGuildMessageCreate(
   guildMember: GuildMember,
-  interaction: ButtonInteraction,
+  message: Message,
 ): Promise<void> {
   // All actions that should be executed
   const actions: Promise<() => void>[] = [
-    executor(routeButtonPress, guildMember, interaction),
+    executor(routeMessage, guildMember, message),
   ];
 
   // If no actions, return

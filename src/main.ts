@@ -2,6 +2,9 @@ import { environment, log } from './utils';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import * as fs from 'fs';
 import { LogType } from './types';
+import { createExtensions } from './utils/extensions';
+
+createExtensions();
 
 export const client = new Client({
   allowedMentions: { parse: [] },
