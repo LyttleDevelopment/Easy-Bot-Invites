@@ -103,7 +103,7 @@ export function getStatus(asc: ActiveSetupConversation) {
   if (
     asc.setupGuildInviteMessage ||
     asc.setupPugInviteMessageStay ||
-    asc.setupRaidInviteMessageLeave
+    asc.setupPugInviteMessageLeave
   ) {
     const variables = {
       // Get user from guildMember
@@ -125,9 +125,9 @@ export function getStatus(asc: ActiveSetupConversation) {
             )}\`\`\`\n`
           : ''
       }${
-        asc.setupRaidInviteMessageLeave
+        asc.setupPugInviteMessageLeave
           ? `- Raid Invite Message (Leave): \n\`\`\`${getMessage(
-              asc.setupRaidInviteMessageLeave,
+              asc.setupPugInviteMessageLeave,
               variables,
             )}\`\`\`\n`
           : ''

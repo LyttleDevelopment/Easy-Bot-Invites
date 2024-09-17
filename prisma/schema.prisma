@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Guild Section
+////////////////////////////////////////////////////////////////////////////////////////
+
+model Guild {
+  // Primary key information
+  guild_id BigInt @id
+
+  // Relations
+  // - Members
+  members Member[]
+
+  // Values
+  announce_channel_id       BigInt?
+  guild_rules_channel_id    BigInt?
+  raid_rules_channel_id     BigInt?
+  welcome_message_guild     String?
+  welcome_message_pug_stay  String?
+  welcome_message_pug_leave String?
+  admin_roles               String?
+  guild_roles               String?
+  pug_roles                 String?
+
+  // Date information
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Refactors
+  @@map("guild")
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Member Section
+////////////////////////////////////////////////////////////////////////////////////////
+
+model Member {
+  // Primary key information
+  user_id  BigInt
+  guild_id BigInt
+
+  // Relations
+  guild Guild @relation(fields: [guild_id], references: [guild_id])
+
+  // Values
+  kick_at    DateTime?
+  is_inviter Boolean   @default(false)
+
+  // Date information
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Refactors
+  @@id([guild_id, user_id])
+  @@unique([user_id, guild_id])
+  @@map("member")
+}

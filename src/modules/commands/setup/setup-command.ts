@@ -13,11 +13,11 @@ import {
 import { Command } from '../../interactions/commands/command-types';
 import { setupCommandValidation1 } from './questions_1_validation';
 
-export const commandName = 'invite_setup' as const;
+export const commandName = 'setup' as const;
 
 const commandData: Command = new SlashCommandBuilder()
   .setName(commandName)
-  .setDescription('Setup guild')
+  .setDescription('Setup this guild')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
 export const setupCommandData = {
@@ -46,7 +46,7 @@ export interface ActiveSetupConversationSettings {
   setupRaidRulesChannel?: GuildBasedChannel;
   setupGuildInviteMessage?: string;
   setupPugInviteMessageStay?: string;
-  setupRaidInviteMessageLeave?: string;
+  setupPugInviteMessageLeave?: string;
 
   nextAction?: (guildMember: GuildMember) => Promise<void>;
   previousAction?: (guildMember: GuildMember) => Promise<void>;
@@ -61,8 +61,12 @@ export async function setupCommand(
   guildMember: GuildMember,
   interaction: CommandInteraction,
 ) {
-  // Create hidden message with buttons yes and no for following questions. Keep it in mind of activeSetupConversations and remove it after conversation ends (button events need seperate function)
-  // 1. Role Setup:  Bot asks: "Have you set up roles on the server?" (Y/N)  If "N", bot sends a DM advising the admin to set up roles and restart the setup later.
+  if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+    return interaction.reply({
+      content: 'You do not have permission to use this command.',
+      ephemeral: true,
+    });
+  }
 
   // Check if user is already in setup conversation
   if (activeSetupConversations.has(getGuildMemberKey(guildMember))) {

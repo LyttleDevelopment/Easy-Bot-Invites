@@ -26,3 +26,17 @@ export function findSingleGuild(guildId: string): Promise<Guild> {
 export async function getOrCreateGuild(guildId: string): Promise<Guild> {
   return (await findSingleGuild(guildId)) ?? (await createGuild(guildId));
 }
+
+export async function setGuildValue(
+  guildId: string,
+  data: { [key: string]: any },
+): Promise<Guild> {
+  await getOrCreateGuild(guildId);
+
+  return prismaClient.guild.update({
+    where: {
+      guild_id: BigInt(guildId),
+    },
+    data,
+  });
+}

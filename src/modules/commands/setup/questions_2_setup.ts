@@ -472,7 +472,7 @@ export async function setupCommandSetupFinish(
 
   if (message) {
     setActiveSetupConversations(guildMember, {
-      setupRaidInviteMessageLeave: message.content,
+      setupPugInviteMessageLeave: message.content,
       setupCompleted: true,
     });
 
