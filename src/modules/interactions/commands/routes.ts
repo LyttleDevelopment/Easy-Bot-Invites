@@ -7,6 +7,6 @@ import { inviteCommand } from '../../commands/invite/invite-command';
  * customId: Function
  */
 export const commandRoutes: CommandRoutes = {
-  invite_setup: setupCommand,
+  setup: setupCommand,
   invite: inviteCommand,
 };

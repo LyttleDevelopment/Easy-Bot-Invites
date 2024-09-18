@@ -1,9 +1,7 @@
-import { actionPrefix } from './index';
 import { GuildMember } from 'discord.js';
 import { GuildMember as ClientGuildMember } from '../../types';
-
-// This file's prefix
-const prefix: string = actionPrefix + 'onGuildMemberAdd.';
+import { onMemberAdd } from '../../modules/invite/invite';
+import { executor } from '../../utils';
 
 // The execute function
 export async function onGuildMemberAdd(
@@ -11,7 +9,9 @@ export async function onGuildMemberAdd(
   member: GuildMember,
 ): Promise<void> {
   // All actions that should be executed
-  const actions: Promise<() => void>[] = [];
+  const actions: Promise<() => void>[] = [
+    executor(onMemberAdd, guildMember, member),
+  ];
 
   // If no actions, return
   if (actions.length < 1) return;

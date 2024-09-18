@@ -16,6 +16,7 @@ import {
   setupCommandRestart,
   setupCommandSave,
 } from '../../commands/setup/questions_3_conformation';
+import { inviteCommandCreate } from '../../commands/invite/invite-command';
 
 /**
  * All routes for button presses
@@ -32,6 +33,16 @@ export const buttonRoutes: ButtonRoutes = {
   'setup-command_no': setupCommandValidationNo,
   'setup-command_save': setupCommandSave,
   'setup-command_restart': setupCommandRestart,
+  invite__guild: (guildMember: GuildMember, interaction: ButtonInteraction) =>
+    inviteCommandCreate(guildMember, interaction, 'guild'),
+  invite__pug__raid: (
+    guildMember: GuildMember,
+    interaction: ButtonInteraction,
+  ) => inviteCommandCreate(guildMember, interaction, 'pug__raid'),
+  invite__pug__stay: (
+    guildMember: GuildMember,
+    interaction: ButtonInteraction,
+  ) => inviteCommandCreate(guildMember, interaction, 'pug__stay'),
 };
 
 /**

@@ -1,12 +1,12 @@
 import { actionPrefix } from './index';
-import { ModalSubmitInteraction } from 'discord.js';
+import { ModalSubmitInteraction, User } from 'discord.js';
 
 // This file's prefix
 const prefix: string = actionPrefix + 'onPrivateInteractionModalSubmit.';
 
 // The execute function
 export async function onPrivateInteractionModalSubmit(
-  userId: string,
+  user: User,
   interaction: ModalSubmitInteraction,
 ): Promise<void> {
   // All actions that should be executed

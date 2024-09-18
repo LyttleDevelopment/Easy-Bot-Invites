@@ -1,12 +1,12 @@
 import { actionPrefix } from './index';
-import { StringSelectMenuInteraction } from 'discord.js';
+import { StringSelectMenuInteraction, User } from 'discord.js';
 
 // This file's prefix
 const prefix: string = actionPrefix + 'onPrivateInteractionModalSubmit.';
 
 // The execute function
 export async function onPrivateInteractionStringSelectMenu(
-  userId: string,
+  user: User,
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   // All actions that should be executed

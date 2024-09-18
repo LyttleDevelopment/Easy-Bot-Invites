@@ -1,12 +1,12 @@
 import { actionPrefix } from './index';
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, User } from 'discord.js';
 
 // This file's prefix
 const prefix: string = actionPrefix + 'onPrivateInteractionCommand.';
 
 // The execute function
 export async function onPrivateInteractionCommand(
-  userId: string,
+  user: User,
   interaction: CommandInteraction,
 ): Promise<void> {
   // All actions that should be executed

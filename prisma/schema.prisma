@@ -18,6 +18,7 @@ model Guild {
   // Relations
   // - Members
   members Member[]
+  invites Invite[]
 
   // Values
   announce_channel_id       BigInt?
@@ -39,6 +40,31 @@ model Guild {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+// Invite Section
+////////////////////////////////////////////////////////////////////////////////////////
+
+model Invite {
+  // Primary key information
+  invite_id String @id
+  guild_id  BigInt
+
+  // Relations
+  guild Guild @relation(fields: [guild_id], references: [guild_id])
+
+  // Values
+  type    String?
+  kick_at DateTime? @default(now())
+  creator BigInt?
+
+  // Date information
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Refactors
+  @@map("invite")
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 // Member Section
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +78,7 @@ model Member {
 
   // Values
   kick_at    DateTime?
+  invite_id  String?
   is_inviter Boolean   @default(false)
 
   // Date information

@@ -26,28 +26,29 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
   if (!inGuild) {
     // Check if we have a valid user
     if (!userId) return;
+    const user = interaction.user;
 
     // Check if the interaction is a button
     if (interaction.isButton()) {
-      return onPrivateInteractionButton(userId, interaction);
+      return onPrivateInteractionButton(user, interaction);
     }
 
     // Check if the interaction is a command
     if (interaction.isCommand()) {
-      return onPrivateInteractionCommand(userId, interaction);
+      return onPrivateInteractionCommand(user, interaction);
     }
 
     // Check if the interaction is a modal submit
     if (interaction.isModalSubmit()) {
-      return onPrivateInteractionModalSubmit(userId, interaction);
+      return onPrivateInteractionModalSubmit(user, interaction);
     }
 
     if (interaction.isStringSelectMenu()) {
-      return onPrivateInteractionStringSelectMenu(userId, interaction);
+      return onPrivateInteractionStringSelectMenu(user, interaction);
     }
 
     if (interaction.isChannelSelectMenu()) {
-      return onPrivateInteractionChannelSelectMenu(userId, interaction);
+      return onPrivateInteractionChannelSelectMenu(user, interaction);
     }
   }
 
