@@ -23,6 +23,19 @@ import client from '../../main';
 
 export async function unauthorizedInvite(member: DiscordGuildMember) {
   await member.kick('Unauthorized invite');
+
+  // Get db guild
+  const db_guild = await findSingleGuild(member.guild.id);
+  if (!db_guild) return;
+
+  // Log to the admin channel
+  const adminChannel = member.guild.channels.cache.get(
+    db_guild.announce_channel_id.toString(),
+  ) as TextChannel;
+  if (!adminChannel) return;
+  await adminChannel.send(
+    `Unauthorized invite used by ${member.user.tag}, user has been kicked.`,
+  );
 }
 
 interface AwaitingStay {

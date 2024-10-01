@@ -3,6 +3,7 @@ import { Collection, Invite } from 'discord.js';
 import client from '../../main';
 import { GuildMember } from '../../types';
 import { deleteInvites, findEveryInvite } from '../../database/handlers/invite';
+import { cleanupInviteMembersById } from './cleanup-invite-members';
 
 type InviteCache = Collection<string, InviteCacheItem>;
 type InviteCacheItem = Collection<string, InviteCacheInvite>;
@@ -49,6 +50,10 @@ export async function deleteUnknownInvites() {
   });
 
   for (const invite of unknownInvites) {
+    await invite.inviter.send(
+      'Your invite has been deleted because it was not created using this bot.\n' +
+        invite.url,
+    );
     await invite.delete('Unauthorized invite');
     // Remove the invite from the cache
     const guildInvites = invitesCache.get(invite.guild.id);
@@ -72,6 +77,12 @@ export async function updateKnownInvites() {
     (db_invite) => !invites.includes(db_invite.invite_id),
   );
 
+  for (const db_invite of unknownDbInvites) {
+    await cleanupInviteMembersById(
+      db_invite.guild_id.toString(),
+      db_invite.invite_id,
+    );
+  }
   await deleteInvites(unknownDbInvites.map((invite) => invite.invite_id));
   await deleteUnknownInvites();
 }

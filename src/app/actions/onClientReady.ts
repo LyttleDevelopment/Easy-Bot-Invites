@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import { deployCommands } from '../../utils/deploy-commands';
 import { executor } from '../../utils';
 import { initInviteCache } from '../../modules/invite/check-invite';
+import { startInterval } from '../../modules/interval/interval';
 
 // The execute function
 export async function onClientReady(client: Client): Promise<void> {
@@ -9,6 +10,7 @@ export async function onClientReady(client: Client): Promise<void> {
   const actions: Promise<() => void>[] = [
     executor(deployCommands),
     executor(initInviteCache),
+    executor(startInterval),
   ];
 
   // If no actions, return
