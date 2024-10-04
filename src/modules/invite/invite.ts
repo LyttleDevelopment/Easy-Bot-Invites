@@ -11,10 +11,7 @@ import {
   User,
 } from 'discord.js';
 import { checkInvite } from './check-invite';
-import {
-  findSingleInvite,
-  findSingleInviteByData,
-} from '../../database/handlers/invite';
+import { findSingleInvite } from '../../database/handlers/invite';
 import { findSingleGuild, setMemberValue } from '../../database/handlers';
 import { getDiscordTime } from '../../utils/get-discord-time';
 import { getMessage } from '../../utils/get-message';
@@ -93,7 +90,7 @@ export async function onMemberAdd(
       // Send DM to user
       await member.user.send({
         content: getMessage(
-          "Please confirm if you'd like to stay after the raid.",
+          'Would you like to stay in our Discord after the raid?',
           { user: member.user },
         ),
         components: [row],
@@ -170,13 +167,10 @@ export async function triggerNewMember(
   }
   if (db_invite.type === 'pug__stay' && !stays) {
     message = db_guild.welcome_message_pug_leave;
-    firstRaidInvite = await findSingleInviteByData(guildMember.guildId, {
-      type: 'pug__raid',
-    });
-    if (!firstRaidInvite) return unauthorizedInvite(member);
+    const in5Hours = new Date(Date.now() + 5 * 60 * 60 * 1000);
     await setMemberValue(guildMember.guildId, member.id, {
-      invite_id: firstRaidInvite.invite_id,
-      kick_at: firstRaidInvite.kick_at,
+      invite_id: db_invite.invite_id,
+      kick_at: in5Hours,
     });
   }
   if (!message) return unauthorizedInvite(member);
