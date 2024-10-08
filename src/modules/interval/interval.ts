@@ -6,9 +6,11 @@ const actions = [updateKnownInvites, cleanupAllMembers];
 
 export function startInterval() {
   // run all actions every 30 minutes
-  setInterval(() => {
+  const action = () => {
     actions.forEach((action) => {
       void executor(action);
     });
-  }, 30 * 60 * 1000); // 30 minutes
+  };
+  setInterval(action, 60 * 1000); // every minute
+  action();
 }

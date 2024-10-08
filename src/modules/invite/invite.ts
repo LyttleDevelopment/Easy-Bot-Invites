@@ -12,14 +12,21 @@ import {
 } from 'discord.js';
 import { checkInvite } from './check-invite';
 import { findSingleInvite } from '../../database/handlers/invite';
-import { findSingleGuild, setMemberValue } from '../../database/handlers';
+import {
+  deleteMember,
+  findSingleGuild,
+  findSingleMember,
+  setMemberValue,
+} from '../../database/handlers';
 import { getDiscordTime } from '../../utils/get-discord-time';
 import { getMessage } from '../../utils/get-message';
 import { Guild, Invite as PrismaInvite } from '@prisma/client';
 import client from '../../main';
+import { KICK_TIME } from '../../../constants';
+import { kickPlayer } from './cleanup-invite-members';
 
 export async function unauthorizedInvite(member: DiscordGuildMember) {
-  await member.kick('Unauthorized invite');
+  await kickPlayer(member, 'Unauthorized invite used');
 
   // Get db guild
   const db_guild = await findSingleGuild(member.guild.id);
@@ -48,6 +55,14 @@ export async function onMemberAdd(
   guildMember: BotGuildMember,
   member: DiscordGuildMember,
 ) {
+  const dbMember = await findSingleMember(
+    guildMember.guildId,
+    guildMember.userId,
+  );
+  if (dbMember) {
+    // Delete member if they are in the database
+    await deleteMember(guildMember.guildId, guildMember.userId);
+  }
   // Get invite
   const invite = await checkInvite(guildMember);
   if (!invite) return unauthorizedInvite(member);
@@ -96,7 +111,7 @@ export async function onMemberAdd(
         components: [row],
       });
     } catch (error) {
-      await member.kick('Failed to ask user if they want to stay');
+      await kickPlayer(member, 'Failed to ask user if they want to stay');
 
       // Log to the admin channel
       const adminChannel = member.guild.channels.cache.get(
@@ -152,7 +167,6 @@ export async function triggerNewMember(
   }
 
   // Send welcome message
-  let firstRaidInvite = db_invite;
   let message: string | null = null;
   switch (db_invite.type) {
     case 'guild':
@@ -165,22 +179,19 @@ export async function triggerNewMember(
       message = db_guild.welcome_message_pug_leave;
       break;
   }
+  let kick_at = null;
   if (db_invite.type === 'pug__stay' && !stays) {
     message = db_guild.welcome_message_pug_leave;
-    const in5Hours = new Date(Date.now() + 5 * 60 * 60 * 1000);
+    kick_at = new Date(Date.now() + KICK_TIME);
     await setMemberValue(guildMember.guildId, member.id, {
       invite_id: db_invite.invite_id,
-      kick_at: in5Hours,
+      kick_at: kick_at,
     });
   }
   if (!message) return unauthorizedInvite(member);
   await member.user.send(getMessage(message, { user: member.user }));
 
   const niceType = db_invite.type
-    .replace('__', ' ')
-    .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
-
-  const niceTypeNew = firstRaidInvite?.type
     .replace('__', ' ')
     .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 
@@ -192,14 +203,12 @@ export async function triggerNewMember(
   await adminChannel.send(
     `# New Member joined:\n- Name <@${member.id}>\n- Username: ${
       member.user.tag
-    }\n- Joined: <t:${getDiscordTime(member.joinedAt)}:R>\n- Invite: ${
-      stays
-        ? `<${invite.url}>`
-        : `<https://discord.gg/${firstRaidInvite?.invite_id}> (Original invite: <${invite.url}>)`
-    }\n- Invite Type: ${stays ? niceType : niceTypeNew}${
-      stays ? '' : ` (Original invite: ${niceType})`
+    }\n- Joined: <t:${getDiscordTime(
+      member.joinedAt,
+    )}:R>\n- Invite: ${`<${invite.url}>`}\n- Invite Type: ${
+      kick_at !== null ? `Pug Raid (Original invite: ${niceType})` : niceType
     }\n- Invite Expires: ${
-      db_invite.kick_at ? `<t:${getDiscordTime(db_invite.kick_at)}:R>` : 'Never'
+      kick_at !== null ? `<t:${getDiscordTime(kick_at)}:R>` : 'Never'
     }\n- Invite created by: <@${db_invite.creator}>\n- Roles: ${
       roleIds.length > 0 ? roles.map((role) => role).join(', ') : 'None'
     }`,

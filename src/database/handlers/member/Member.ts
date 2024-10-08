@@ -76,3 +76,25 @@ export async function findEveryMember(
     },
   });
 }
+
+export async function deleteMember(guildId: string, userId: string) {
+  return prismaClient.member.delete({
+    where: {
+      guild_id_user_id: {
+        guild_id: BigInt(guildId),
+        user_id: BigInt(userId),
+      },
+    },
+  });
+}
+
+export async function deleteMembers(guildId: string, memberIds: string[]) {
+  return prismaClient.member.deleteMany({
+    where: {
+      guild_id: BigInt(guildId),
+      user_id: {
+        in: memberIds.map((id) => BigInt(id)),
+      },
+    },
+  });
+}

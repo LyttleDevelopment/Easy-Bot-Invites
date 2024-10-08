@@ -1,5 +1,15 @@
-import { Guild as DiscordGuild, Invite } from 'discord.js';
-import { findEveryMember } from '../../database/handlers';
+import {
+  Guild as DiscordGuild,
+  GuildMember,
+  Invite,
+  TextChannel,
+} from 'discord.js';
+import {
+  deleteMember,
+  deleteMembers,
+  findEveryMember,
+  findSingleGuild,
+} from '../../database/handlers';
 import client from '../../main';
 import { findSingleInvite } from '../../database/handlers/invite';
 
@@ -25,23 +35,36 @@ export async function cleanupInviteMembersById(
   );
 
   for (const member of discordMembers) {
-    await member.kick('Temporary invite expired');
+    try {
+      await kickPlayer(member, 'Temporary invite expired');
+    } catch (e) {}
   }
 }
 
 export async function cleanupMembers(guild: DiscordGuild) {
   const dbMembers = await findEveryMember(guild.id, {
     is_inviter: false,
-    kick_at: { lte: new Date() },
+    kick_at: {
+      lte: new Date(),
+    },
   });
 
-  const discordMembers = dbMembers.map((dbMember) =>
+  const discordDBMembers = dbMembers.map((dbMember) =>
     guild.members.cache.get(dbMember.user_id.toString()),
   );
 
-  for (const member of discordMembers) {
-    await member.kick('Pug raid invite expired');
+  for (const member of discordDBMembers) {
+    await kickPlayer(member, 'Pug raid invite expired');
   }
+
+  const dbMembersNoLongerInGuild = dbMembers.filter(
+    (dbMember) =>
+      guild.members.cache.get(dbMember.user_id.toString()) === undefined,
+  );
+  await deleteMembers(
+    guild.id,
+    dbMembersNoLongerInGuild.map((dbMember) => dbMember.user_id.toString()),
+  );
 }
 
 export async function cleanupAllMembers() {
@@ -50,4 +73,20 @@ export async function cleanupAllMembers() {
   for (const guild of guilds) {
     await cleanupMembers(guild);
   }
+}
+
+export async function kickPlayer(member: GuildMember, reason: string) {
+  try {
+    await member.kick(reason);
+    await deleteMember(member.guild.id, member.id);
+
+    const db_guild = await findSingleGuild(member.guild.id);
+
+    // Log to the admin channel
+    const adminChannel = member.guild.channels.cache.get(
+      db_guild.announce_channel_id.toString(),
+    ) as TextChannel;
+    if (!adminChannel) return;
+    await adminChannel.send(`Kicked ${member} for ${reason}`);
+  } catch (e) {}
 }

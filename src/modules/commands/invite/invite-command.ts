@@ -17,6 +17,7 @@ import { getOrCreateGuild } from '../../../database/handlers';
 import client from '../../../main';
 import { createInvite } from '../../../database/handlers/invite';
 import { getDiscordTime } from '../../../utils/get-discord-time';
+import { KICK_TIME } from '../../../../constants';
 
 export const commandName = 'invite' as const;
 
@@ -107,7 +108,7 @@ export async function inviteCommandCreate(
   const permanent = ['guild', 'pug__stay'].includes(type);
 
   const invite = await channel.createInvite({
-    maxAge: permanent ? 0 : 5 * 60 * 60, // 0 = infinite else 5 hours
+    maxAge: permanent ? 0 : KICK_TIME / 1000, // 0 = infinite else in seconds
     maxUses: 0, // 0 = infinite
     unique: true, // unique code
     reason: 'New member invite',

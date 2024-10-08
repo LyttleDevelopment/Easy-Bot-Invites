@@ -5,3 +5,5 @@
 export const JEF_ID = '548240698869284884';
 export const FAMILY_FEED_CHANNEL_ID = '1141034080520130612';
 export const FRIENDS_FEED_CHANNEL_ID = '1141034151882002572';
+export const KICK_TIME = 5 * 60 * 60 * 1000; // 5 hours
+// export const KICK_TIME = 5 * 60 * 1000; // 5 minutes

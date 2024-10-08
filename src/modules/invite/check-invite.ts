@@ -50,10 +50,12 @@ export async function deleteUnknownInvites() {
   });
 
   for (const invite of unknownInvites) {
-    await invite.inviter.send(
-      'Your invite has been deleted because it was not created using this bot.\n' +
-        invite.url,
-    );
+    if (!invite.inviter.bot) {
+      await invite.inviter.send(
+        'Your invite has been deleted because it was not created using this bot.\n' +
+          invite.url,
+      );
+    }
     await invite.delete('Unauthorized invite');
     // Remove the invite from the cache
     const guildInvites = invitesCache.get(invite.guild.id);
@@ -64,6 +66,9 @@ export async function deleteUnknownInvites() {
 }
 
 export async function updateKnownInvites() {
+  if (invitesCache.size === 0) {
+    await initInviteCache();
+  }
   // Get all invite codes for all guilds
   const invites: string[] = invitesCache
     .map((guildInvites) => {
