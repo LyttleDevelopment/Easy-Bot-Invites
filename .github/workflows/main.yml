@@ -23,4 +23,4 @@ jobs:
         run: docker build -t easy-bot-invites .
 
       - name: Push API Docker image to GitHub Container Registry
-        run: docker push ghcr.io/lyttle-development/easy-bot-invites:main
+        run: docker push ghcr.io/lyttledevelopment/easy-bot-invites:main
