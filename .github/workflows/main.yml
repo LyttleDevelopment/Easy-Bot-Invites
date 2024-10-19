@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build API Docker image
-        run: docker build -t ghcr.io/lyttledevelopment/easy-bot-invites:main easy-bot-invites .
+        run: docker build -t ghcr.io/lyttledevelopment/easy-bot-invites:main .
 
       - name: Push API Docker image to GitHub Container Registry
         run: docker push ghcr.io/lyttledevelopment/easy-bot-invites:main
