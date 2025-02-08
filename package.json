@@ -10,6 +10,7 @@
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
     "prisma:dangerously-db-push": "prisma db push",
+    "prisma:pull": "npx prisma db pull",
     "prisma:migrate": "prisma migrate dev --name merge-upstream",
     "prisma:deploy": "prisma migrate deploy",
     "dev": "tsc -w",
