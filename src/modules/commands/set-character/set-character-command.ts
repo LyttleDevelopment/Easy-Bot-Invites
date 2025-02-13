@@ -11,7 +11,6 @@ import { GuildMember } from '../../../types';
 export const commandName = 'set_character' as const;
 
 export const SetCharacterClasses: { name: string; value: string }[] = [
-  { name: 'Demon Hunter', value: 'Demon Hunter' },
   { name: 'Druid', value: 'Druid' },
   { name: 'Hunter', value: 'Hunter' },
   { name: 'Mage', value: 'Mage' },
