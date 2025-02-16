@@ -22,24 +22,6 @@ export const SetCharacterClasses: { name: string; value: string }[] = [
   { name: 'Warrior', value: 'Warrior' },
 ];
 
-export const SetCharacterSpecs: { name: string; value: string }[] = [
-  { name: 'Affliction', value: 'Affliction' },
-  { name: 'Arcane', value: 'Arcane' },
-  { name: 'Arms', value: 'Arms' },
-  { name: 'Assassination', value: 'Assassination' },
-  { name: 'Balance', value: 'Balance' },
-  { name: 'Beast Mastery', value: 'Beast Mastery' },
-  { name: 'Combat', value: 'Combat' },
-  { name: 'Demonology', value: 'Demonology' },
-  { name: 'Destruction', value: 'Destruction' },
-  { name: 'Discipline', value: 'Discipline' },
-  { name: 'Elemental', value: 'Elemental' },
-  { name: 'Enchantment', value: 'Enchantment' },
-  { name: 'Fire', value: 'Fire' },
-  { name: 'Frost', value: 'Frost' },
-  { name: 'Fury', value: 'Fury' },
-];
-
 // Define allowed specs per class
 export const allowedSpecsByClass: Record<string, string[]> = {
   Druid: ['Feral Bear', 'Feral Cat', 'Balance', 'Restoration'],
@@ -52,6 +34,18 @@ export const allowedSpecsByClass: Record<string, string[]> = {
   Warrior: ['Protection', 'Fury', 'Arms'],
   Shaman: ['Enchantment', 'Elemental', 'Restoration'],
 };
+
+export const SetCharacterSpecs: {
+  name: string;
+  value: string;
+}[] = [
+  ...new Set(
+    Object.keys(allowedSpecsByClass).reduce((acc, className) => {
+      const specs = allowedSpecsByClass[className];
+      return [...acc, ...specs];
+    }, []),
+  ),
+].map((spec) => ({ name: spec, value: spec }));
 
 export const SetCharacterType = [
   { name: 'Main', value: 'Main' },
