@@ -22,9 +22,9 @@ export const SetCharacterClasses: { name: string; value: string }[] = [
   { name: 'Warrior', value: 'Warrior' },
 ];
 
-// Define allowed specs per class
+// Updated specs: Merged "Feral Bear" & "Feral Cat" into "Feral"
 export const allowedSpecsByClass: Record<string, string[]> = {
-  Druid: ['Feral Bear', 'Feral Cat', 'Balance', 'Restoration'],
+  Druid: ['Feral', 'Balance', 'Restoration'],
   Hunter: ['Marksmanship', 'Beast Mastery', 'Survival'],
   Mage: ['Frost', 'Fire', 'Arcane'],
   Paladin: ['Protection', 'Retribution', 'Holy'],
@@ -35,19 +35,8 @@ export const allowedSpecsByClass: Record<string, string[]> = {
   Shaman: ['Enchantment', 'Elemental', 'Restoration'],
 };
 
-export const AllowedSubClasses = ['None'];
-
-export const allowedSpecsPerSubClass = Object.keys(allowedSpecsByClass).reduce(
-  // Add allowedSubClasses to each class
-  (acc, className) => {
-    const specs = allowedSpecsByClass[className];
-    return {
-      ...acc,
-      [className]: [...specs, ...AllowedSubClasses],
-    };
-  },
-  {},
-);
+// Allow "None" to be a valid Off-Spec option
+export const AllowedSubSpecs = ['None'];
 
 export const SetCharacterSpecs: {
   name: string;
@@ -61,23 +50,14 @@ export const SetCharacterSpecs: {
   ),
 ].map((spec) => ({ name: spec, value: spec }));
 
-export const SetCharacterOffSpecs: {
-  name: string;
-  value: string;
-}[] = [
+export const SetCharacterOffSpecs: { name: string; value: string }[] = [
   ...SetCharacterSpecs,
-  ...AllowedSubClasses.map((spec) => ({
-    name: spec,
-    value: spec,
-  })),
+  ...AllowedSubSpecs.map((spec) => ({ name: spec, value: spec })),
 ];
 
 export const SetCharacterType = [
   { name: 'Main', value: 'Main' },
-  {
-    name: 'Alt',
-    value: 'Alt',
-  },
+  { name: 'Alt', value: 'Alt' },
 ];
 
 const commandData: Command = new SlashCommandBuilder()
@@ -91,28 +71,28 @@ const commandData: Command = new SlashCommandBuilder()
       .setName('class')
       .setDescription('Character Class')
       .setRequired(true)
-      .addChoices(SetCharacterClasses),
+      .addChoices(...SetCharacterClasses),
   )
   .addStringOption((option) =>
     option
       .setName('main_spec')
       .setDescription('Main Spec')
       .setRequired(true)
-      .addChoices(SetCharacterSpecs),
+      .addChoices(...SetCharacterSpecs),
   )
   .addStringOption((option) =>
     option
       .setName('off_spec')
       .setDescription('Off Spec')
       .setRequired(true)
-      .addChoices(SetCharacterOffSpecs),
+      .addChoices(...SetCharacterOffSpecs),
   )
   .addStringOption((option) =>
     option
       .setName('main_or_alt')
       .setDescription('Is this your Main or Alt?')
       .setRequired(true)
-      .addChoices(SetCharacterType),
+      .addChoices(...SetCharacterType),
   );
 
 export const setCharacterCommandData = {
@@ -124,11 +104,9 @@ export async function setCharacterCommand(
   guildMember: GuildMember,
   interaction: CommandInteraction,
 ) {
-  // Ensure interaction.options has correct type
   const options =
     interaction.options as CommandInteractionOptionResolver<CacheType>;
 
-  // Extract user input
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
   const characterName = options.getString('name', true);
@@ -140,41 +118,33 @@ export async function setCharacterCommand(
   if (!guildId) {
     return interaction.reply({
       content: 'This command must be used in a server.',
-      options: { ephemeral: true },
+      ephemeral: true,
     });
   }
 
-  // Validate that the selected specs are allowed for the chosen class
-  const allowedSpecs = allowedSpecsByClass[characterClass];
-  if (!allowedSpecs) {
-    return interaction.reply({
-      content: `No allowed specs have been defined for class "${characterClass}".`,
-      options: { ephemeral: true },
-    });
-  }
+  const allowedSpecs = allowedSpecsByClass[characterClass] || [];
 
   if (!allowedSpecs.includes(mainSpec)) {
     return interaction.reply({
       content: `The main spec "${mainSpec}" is not valid for a ${characterClass}. Valid options are: ${allowedSpecs.join(
         ', ',
       )}.`,
-      options: { ephemeral: true },
+      ephemeral: true,
     });
   }
 
-  if (!allowedSpecs.includes(offSpec)) {
+  if (![...allowedSpecs, ...AllowedSubSpecs].includes(offSpec)) {
     return interaction.reply({
-      content: `The off spec "${offSpec}" is not valid for a ${characterClass}. Valid options are: ${allowedSpecs.join(
-        ', ',
-      )}.`,
-      options: { ephemeral: true },
+      content: `The off spec "${offSpec}" is not valid for a ${characterClass}. Valid options are: ${[
+        ...allowedSpecs,
+        ...AllowedSubSpecs,
+      ].join(', ')}.`,
+      ephemeral: true,
     });
   }
 
-  // Ensure the user is registered in the guild
   await getOrCreateMember(guildId, userId);
 
-  // Save character to database
   await createCharacter(
     guildId,
     userId,
@@ -185,9 +155,8 @@ export async function setCharacterCommand(
     mainOrAlt,
   );
 
-  // Reply to user
   await interaction.reply({
     content: `✅ Character **${characterName}** (${characterClass}) has been set!\n- **Main Spec:** ${mainSpec}\n- **Off Spec:** ${offSpec}\n- **Main/Alt:** ${mainOrAlt}`,
-    options: { ephemeral: true },
+    ephemeral: true,
   });
 }
