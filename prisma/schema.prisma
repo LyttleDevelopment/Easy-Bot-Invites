@@ -17,8 +17,9 @@ model Guild {
 
   // Relations
   // - Members
-  members Member[]
-  invites Invite[]
+  members    Member[]
+  invites    Invite[]
+  characters Character[]
 
   // Values
   announce_channel_id       BigInt?
@@ -74,7 +75,8 @@ model Member {
   guild_id BigInt
 
   // Relations
-  guild Guild @relation(fields: [guild_id], references: [guild_id])
+  guild      Guild       @relation(fields: [guild_id], references: [guild_id])
+  characters Character[]
 
   // Values
   kick_at    DateTime?
@@ -89,4 +91,34 @@ model Member {
   @@id([guild_id, user_id])
   @@unique([user_id, guild_id])
   @@map("member")
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Character Section
+////////////////////////////////////////////////////////////////////////////////////////
+
+model Character {
+  // Primary key
+  id             BigInt @id @default(autoincrement())
+  user_id        BigInt
+  guild_id       BigInt
+  character_name String
+
+  // Character details
+  class       String
+  main_spec   String
+  off_spec    String
+  main_or_alt String
+
+  // Relations
+  guild  Guild  @relation(fields: [guild_id], references: [guild_id])
+  member Member @relation(fields: [user_id, guild_id], references: [user_id, guild_id])
+
+  // Date information
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Constraints
+  @@unique([user_id, character_name])
+  @@map("character")
 }

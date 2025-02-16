@@ -1,8 +1,25 @@
-import { setupCommandData } from '../../commands/setup/setup-command';
-import { inviteCommandData } from '../../commands/invite/invite-command';
+import {
+  exportListCommandData,
+  inviteCommandData,
+  listAllCommandData,
+  listClassCommandData,
+  listSpecCommandData,
+  purgeCommandData,
+  setCharacterCommandData,
+  setupCommandData,
+} from '../../commands';
 
 /**
  * All registered commands DATA
  * !! Not typed, so we can detect the command name !!
  */
-export const commands = [setupCommandData, inviteCommandData] as const;
+export const commands = [
+  exportListCommandData,
+  inviteCommandData,
+  listAllCommandData,
+  listClassCommandData,
+  listSpecCommandData,
+  purgeCommandData,
+  setCharacterCommandData,
+  setupCommandData,
+] as const;
