@@ -14,7 +14,7 @@ import {
   getOrCreateMember,
 } from '../../../database/handlers'; // This is the function that fetches characters by spec
 import { GuildMember } from '../../../types';
-import { SetCharacterSpecs } from '../set-character/set-character-command';
+import { SetCharacterOffSpecs } from '../set-character/set-character-command';
 
 export const commandName = 'list_spec' as const;
 
@@ -28,7 +28,7 @@ const commandData: Command = new SlashCommandBuilder()
       .setName('spec')
       .setDescription('The specialization to filter by')
       .setRequired(true)
-      .addChoices(SetCharacterSpecs),
+      .addChoices(SetCharacterOffSpecs),
   );
 
 export const listSpecCommandData = {

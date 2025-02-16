@@ -35,6 +35,20 @@ export const allowedSpecsByClass: Record<string, string[]> = {
   Shaman: ['Enchantment', 'Elemental', 'Restoration'],
 };
 
+export const AllowedSubClasses = ['None'];
+
+export const allowedSpecsPerSubClass = Object.keys(allowedSpecsByClass).reduce(
+  // Add allowedSubClasses to each class
+  (acc, className) => {
+    const specs = allowedSpecsByClass[className];
+    return {
+      ...acc,
+      [className]: [...specs, ...AllowedSubClasses],
+    };
+  },
+  {},
+);
+
 export const SetCharacterSpecs: {
   name: string;
   value: string;
@@ -46,6 +60,17 @@ export const SetCharacterSpecs: {
     }, []),
   ),
 ].map((spec) => ({ name: spec, value: spec }));
+
+export const SetCharacterOffSpecs: {
+  name: string;
+  value: string;
+}[] = [
+  ...SetCharacterSpecs,
+  ...AllowedSubClasses.map((spec) => ({
+    name: spec,
+    value: spec,
+  })),
+];
 
 export const SetCharacterType = [
   { name: 'Main', value: 'Main' },
@@ -80,7 +105,7 @@ const commandData: Command = new SlashCommandBuilder()
       .setName('off_spec')
       .setDescription('Off Spec')
       .setRequired(true)
-      .addChoices(SetCharacterSpecs),
+      .addChoices(SetCharacterOffSpecs),
   )
   .addStringOption((option) =>
     option
