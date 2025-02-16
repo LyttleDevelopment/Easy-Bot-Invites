@@ -4,6 +4,7 @@ import {
   listAllCommand,
   listClassCommand,
   listSpecCommand,
+  purgeCommand,
   setCharacterCommand,
   setupCommand,
 } from '../../commands';
@@ -19,6 +20,7 @@ export const commandRoutes: CommandRoutes = {
   list_all: listAllCommand,
   list_class: listClassCommand,
   list_spec: listSpecCommand,
+  purge: purgeCommand,
   set_character: setCharacterCommand,
   setup: setupCommand,
 };

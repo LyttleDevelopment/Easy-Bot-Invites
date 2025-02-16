@@ -4,6 +4,7 @@ import {
   listAllCommandData,
   listClassCommandData,
   listSpecCommandData,
+  purgeCommandData,
   setCharacterCommandData,
   setupCommandData,
 } from '../../commands';
@@ -18,6 +19,7 @@ export const commands = [
   listAllCommandData,
   listClassCommandData,
   listSpecCommandData,
+  purgeCommandData,
   setCharacterCommandData,
   setupCommandData,
 ] as const;

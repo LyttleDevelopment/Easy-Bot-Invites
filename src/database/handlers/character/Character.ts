@@ -116,3 +116,31 @@ export async function exportGuildCharacters(
     orderBy: [{ class: 'asc' }, { main_spec: 'asc' }],
   });
 }
+
+export async function deleteCharacterByName(
+  guildId: string,
+  characterName: string,
+): Promise<number> {
+  const result = await prismaClient.character.deleteMany({
+    where: {
+      guild_id: BigInt(guildId),
+      character_name: characterName,
+    },
+  });
+
+  return result.count; // Returns the number of deleted records
+}
+
+export async function deleteCharactersByMember(
+  guildId: string,
+  userId: string,
+): Promise<number> {
+  const result = await prismaClient.character.deleteMany({
+    where: {
+      guild_id: BigInt(guildId),
+      user_id: BigInt(userId),
+    },
+  });
+
+  return result.count; // Returns the number of deleted records
+}

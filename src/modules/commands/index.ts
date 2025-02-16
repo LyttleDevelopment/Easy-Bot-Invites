@@ -15,6 +15,7 @@ export {
   listSpecCommand,
   listSpecCommandData,
 } from './list-spec/list-spec-command';
+export { purgeCommand, purgeCommandData } from './purge/purge-command';
 export {
   setCharacterCommand,
   setCharacterCommandData,
