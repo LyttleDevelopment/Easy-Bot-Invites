@@ -40,7 +40,7 @@ export async function listAllCommand(
   if (characters.length === 0) {
     return interaction.reply({
       content: 'No characters are registered in the guild.',
-      options: { ephemeral: true },
+      ephemeral: true, // Correct placement of ephemeral
     });
   }
 
@@ -49,6 +49,9 @@ export async function listAllCommand(
   const totalPages = Math.ceil(characters.length / pageSize);
   let currentPage = 1;
 
+  // Acknowledge the interaction immediately to prevent expiration
+  await interaction.deferReply({ ephemeral: true });
+
   // Helper function to create embed message for listing
   const createEmbed = (page: number) => {
     const startIndex = (page - 1) * pageSize;
@@ -56,8 +59,8 @@ export async function listAllCommand(
 
     const embed = new EmbedBuilder()
       .setTitle('Guild Character List')
-      .setDescription(`Page ${page} of ${totalPages}`)
-      .setColor('#00FF00');
+      .setColor('#00FF00')
+      .setFooter({ text: `Page ${page} of ${totalPages}` });
 
     const characterList = characters
       .slice(startIndex, endIndex)
@@ -73,40 +76,35 @@ export async function listAllCommand(
   };
 
   // Create buttons for pagination
-  const createButtons = (page: number) => {
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+  const createButtons = (page: number, disabled = false) => {
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('prev_page')
         .setLabel('Previous')
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === 1), // Disable if on the first page
+        .setDisabled(disabled || page === 1), // Disable if on first page or collector ends
       new ButtonBuilder()
         .setCustomId('next_page')
         .setLabel('Next')
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === totalPages), // Disable if on the last page
+        .setDisabled(disabled || page === totalPages), // Disable if on last page or collector ends
     );
-
-    return row;
   };
 
   // Send the initial message
   const embed = createEmbed(currentPage);
   const buttons = createButtons(currentPage);
 
-  await interaction.reply({
+  const message = await interaction.editReply({
     embeds: [embed],
     components: [buttons],
-    options: { ephemeral: true },
   });
 
   // Handle button interactions for pagination
-  const filter = (buttonInteraction) =>
-    buttonInteraction.user.id === interaction.user.id;
-
-  const collector = interaction.channel.createMessageComponentCollector({
-    filter,
-    time: 60_000, // Collector time (60 seconds)
+  const collector = message.createMessageComponentCollector({
+    filter: (buttonInteraction) =>
+      buttonInteraction.user.id === interaction.user.id,
+    time: 60_000, // 60 seconds timeout
   });
 
   collector.on('collect', async (buttonInteraction) => {
@@ -117,23 +115,25 @@ export async function listAllCommand(
       currentPage < totalPages
     ) {
       currentPage++;
+    } else {
+      return; // Ignore invalid clicks
     }
 
     // Update the embed and buttons
-    const updatedEmbed = createEmbed(currentPage);
-    const updatedButtons = createButtons(currentPage);
-
     await buttonInteraction.update({
-      embeds: [updatedEmbed],
-      components: [updatedButtons],
+      embeds: [createEmbed(currentPage)],
+      components: [createButtons(currentPage)],
     });
   });
 
   collector.on('end', async () => {
-    // Disable buttons after the collector ends (timeout or manual cancel)
-    const disabledButtons = createButtons(currentPage);
-    await interaction.editReply({
-      components: [disabledButtons],
-    });
+    // Disable buttons after timeout
+    try {
+      await interaction.editReply({
+        components: [createButtons(currentPage, true)], // Disable buttons
+      });
+    } catch (error) {
+      console.warn('Failed to edit reply after collector ended:', error);
+    }
   });
 }
