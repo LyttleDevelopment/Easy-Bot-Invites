@@ -90,6 +90,7 @@ export async function listAllCommand(
   await interaction.reply({
     embeds: [createEmbed(characters, 1, totalPages)],
     components: [createButtons(1, totalPages)],
+    ephemeral: true,
   });
 }
 

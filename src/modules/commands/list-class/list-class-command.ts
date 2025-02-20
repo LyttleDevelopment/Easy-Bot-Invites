@@ -102,6 +102,7 @@ export async function listClassCommand(
   await interaction.reply({
     embeds: [createEmbed(characters, className, 1, totalPages)],
     components: [createButtons(1, totalPages)],
+    ephemeral: true,
   });
 }
 
