@@ -14,7 +14,7 @@ import {
   getOrCreateMember,
 } from '../../../database/handlers'; // This is the function that fetches characters by spec
 import { GuildMember } from '../../../types';
-import { SetCharacterClasses } from '../set-character/set-character-command';
+import { SetCharacterSpecs } from '../set-character/set-character-command';
 
 export const commandName = 'list_spec' as const;
 
@@ -28,7 +28,7 @@ const commandData: Command = new SlashCommandBuilder()
       .setName('spec')
       .setDescription('The specialization to filter by')
       .setRequired(true)
-      .addChoices(SetCharacterClasses),
+      .addChoices(SetCharacterSpecs),
   );
 
 export const listSpecCommandData = {
@@ -62,7 +62,7 @@ export async function listSpecCommand(
   }
 
   // Pagination settings
-  const pageSize = 10; // Number of items per page
+  const pageSize = 5; // Number of items per page
   const totalPages = Math.ceil(characters.length / pageSize);
   let currentPage = 1;
 

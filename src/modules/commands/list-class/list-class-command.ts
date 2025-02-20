@@ -60,7 +60,7 @@ export async function listClassCommand(
   }
 
   // Pagination settings
-  const pageSize = 10; // Number of items per page
+  const pageSize = 5; // Number of items per page
   const totalPages = Math.ceil(characters.length / pageSize);
   let currentPage = 1;
 
