@@ -17,6 +17,13 @@ import {
   setupCommandSave,
 } from '../../commands/setup/questions_3_conformation';
 import { inviteCommandCreate } from '../../commands/invite/invite-command';
+import { handleListAllButton } from '../../commands/list-all/list-all-command';
+import {
+  handleListClassButton,
+} from '../../commands/list-class/list-class-command';
+import {
+  handleListSpecButton,
+} from '../../commands/list-spec/list-spec-command';
 
 /**
  * All routes for button presses
@@ -43,6 +50,12 @@ export const buttonRoutes: ButtonRoutes = {
     guildMember: GuildMember,
     interaction: ButtonInteraction,
   ) => inviteCommandCreate(guildMember, interaction, 'pug__stay'),
+  'list-all-prev': handleListAllButton,
+  'list-all-next': handleListAllButton,
+  'list-class-prev': handleListClassButton,
+  'list-class-next': handleListClassButton,
+  'list-spec-prev': handleListSpecButton,
+  'list-spec-next': handleListSpecButton,
 };
 
 /**

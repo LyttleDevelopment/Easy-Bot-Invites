@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   CacheType,
   CommandInteraction,
@@ -12,7 +13,7 @@ import { Command } from '../../interactions/commands/command-types';
 import {
   getCharactersBySpec,
   getOrCreateMember,
-} from '../../../database/handlers'; // This is the function that fetches characters by spec
+} from '../../../database/handlers';
 import { GuildMember } from '../../../types';
 import { SetCharacterSpecs } from '../set-character/set-character-command';
 
@@ -36,22 +37,58 @@ export const listSpecCommandData = {
   commandData,
 } as const;
 
+const pageSize = 5;
+const userSpecPages = new Map<string, { spec: string; page: number }>();
+
+const createEmbed = (characters, spec, page, totalPages) => {
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, characters.length);
+
+  const embed = new EmbedBuilder()
+    .setTitle(`Character List - Specialization: ${spec}`)
+    .setColor('#00FF00')
+    .setFooter({ text: `Page ${page} of ${totalPages}` });
+
+  const characterList = characters
+    .slice(startIndex, endIndex)
+    .map(
+      (char) =>
+        `**${char.character_name}** - ${char.main_or_alt} | ${char.main_spec} (${char.off_spec})\n- **Class:** ${char.class}\n- **Main Spec:** ${char.main_spec}\n- **Off Spec:** ${char.off_spec}\n`,
+    )
+    .join('\n');
+
+  embed.setDescription(characterList || 'No characters found.');
+
+  return embed;
+};
+
+const createButtons = (page, totalPages) => {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('list-spec-prev')
+      .setLabel('Previous')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(page === 1),
+    new ButtonBuilder()
+      .setCustomId('list-spec-next')
+      .setLabel('Next')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(page === totalPages),
+  );
+};
+
 export async function listSpecCommand(
   guildMember: GuildMember,
   interaction: CommandInteraction,
 ) {
-  // Ensure interaction.options has correct type
   const options =
     interaction.options as CommandInteractionOptionResolver<CacheType>;
 
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
-  const spec = options.getString('spec', true); // Get spec from the option
+  const spec = options.getString('spec', true);
 
-  // Ensure the user is a member of the guild
   await getOrCreateMember(guildId, userId);
-
-  // Fetch all characters with the specified spec in this guild
   const characters = await getCharactersBySpec(guildId, spec);
 
   if (characters.length === 0) {
@@ -61,96 +98,44 @@ export async function listSpecCommand(
     });
   }
 
-  // Pagination settings
-  const pageSize = 5; // Number of items per page
   const totalPages = Math.ceil(characters.length / pageSize);
-  let currentPage = 1;
-
-  // Helper function to create embed message for listing
-  const createEmbed = (page: number) => {
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, characters.length);
-
-    const embed = new EmbedBuilder()
-      .setTitle(`Character List - Specialization: ${spec}`)
-      .setDescription(`Page ${page} of ${totalPages}`)
-      .setColor('#00FF00');
-
-    const characterList = characters
-      .slice(startIndex, endIndex)
-      .map(
-        (char) =>
-          `**${char.character_name}** - ${char.main_or_alt} | ${char.main_spec} (${char.off_spec})\n- **Class:** ${char.class}\n- **Main Spec:** ${char.main_spec}\n- **Off Spec:** ${char.off_spec}\n`,
-      )
-      .join('\n');
-
-    embed.setDescription(characterList);
-
-    return embed;
-  };
-
-  // Create buttons for pagination
-  const createButtons = (page: number) => {
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('prev_page')
-        .setLabel('Previous')
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === 1), // Disable if on the first page
-      new ButtonBuilder()
-        .setCustomId('next_page')
-        .setLabel('Next')
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(page === totalPages), // Disable if on the last page
-    );
-
-    return row;
-  };
-
-  // Send the initial message
-  const embed = createEmbed(currentPage);
-  const buttons = createButtons(currentPage);
+  userSpecPages.set(userId, { spec, page: 1 });
 
   await interaction.reply({
-    embeds: [embed],
-    components: [buttons],
+    embeds: [createEmbed(characters, spec, 1, totalPages)],
+    components: [createButtons(1, totalPages)],
     ephemeral: true,
   });
+}
 
-  // Handle button interactions for pagination
-  const filter = (buttonInteraction) =>
-    buttonInteraction.user.id === interaction.user.id;
+// 🎯 Button Interaction Handling
+export async function handleListSpecButton(
+  guildMember: GuildMember,
+  interaction: ButtonInteraction,
+) {
+  if (!['list-spec-prev', 'list-spec-next'].includes(interaction.customId)) {
+    return;
+  }
 
-  const collector = interaction.channel.createMessageComponentCollector({
-    filter,
-    time: 60_000, // Collector time (60 seconds)
-  });
+  const userId = interaction.user.id;
+  const userState = userSpecPages.get(userId);
+  if (!userState) return;
 
-  collector.on('collect', async (buttonInteraction) => {
-    if (buttonInteraction.customId === 'prev_page' && currentPage > 1) {
-      currentPage--;
-    } else if (
-      buttonInteraction.customId === 'next_page' &&
-      currentPage < totalPages
-    ) {
-      currentPage++;
-    }
+  const { spec, page } = userState;
+  const characters = await getCharactersBySpec(interaction.guildId, spec);
+  const totalPages = Math.ceil(characters.length / pageSize);
 
-    // Update the embed and buttons
-    const updatedEmbed = createEmbed(currentPage);
-    const updatedButtons = createButtons(currentPage);
+  let newPage = page;
+  if (interaction.customId === 'list-spec-prev' && page > 1) {
+    newPage--;
+  } else if (interaction.customId === 'list-spec-next' && page < totalPages) {
+    newPage++;
+  }
 
-    await buttonInteraction.update({
-      embeds: [updatedEmbed],
-      components: [updatedButtons],
-    });
-  });
+  userSpecPages.set(userId, { spec, page: newPage });
 
-  collector.on('end', async () => {
-    // Disable buttons after the collector ends (timeout or manual cancel)
-    const disabledButtons = createButtons(currentPage);
-    await interaction.editReply({
-      components: [disabledButtons],
-    });
+  await interaction.update({
+    embeds: [createEmbed(characters, spec, newPage, totalPages)],
+    components: [createButtons(newPage, totalPages)],
   });
 }
