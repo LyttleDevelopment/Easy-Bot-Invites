@@ -2,6 +2,10 @@ import { prismaClient } from '../../prisma';
 import { getOrCreateGuild } from '../guild';
 import type { Member } from '@prisma/client';
 import { Prisma } from '@prisma/client';
+import {
+  deleteCharactersByMember,
+  deleteCharactersByMembers,
+} from '../character';
 
 export function createMember(guildId: string, userId: string): Promise<Member> {
   return prismaClient.member.upsert({
@@ -78,6 +82,8 @@ export async function findEveryMember(
 }
 
 export async function deleteMember(guildId: string, userId: string) {
+  await deleteCharactersByMember(guildId, userId);
+
   return prismaClient.member.delete({
     where: {
       guild_id_user_id: {
@@ -89,6 +95,8 @@ export async function deleteMember(guildId: string, userId: string) {
 }
 
 export async function deleteMembers(guildId: string, memberIds: string[]) {
+  await deleteCharactersByMembers(guildId, memberIds);
+
   return prismaClient.member.deleteMany({
     where: {
       guild_id: BigInt(guildId),

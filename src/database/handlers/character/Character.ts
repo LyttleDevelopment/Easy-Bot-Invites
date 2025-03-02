@@ -144,3 +144,19 @@ export async function deleteCharactersByMember(
 
   return result.count; // Returns the number of deleted records
 }
+
+export async function deleteCharactersByMembers(
+  guildId: string,
+  memberIds: string[],
+): Promise<number> {
+  const result = await prismaClient.character.deleteMany({
+    where: {
+      guild_id: BigInt(guildId),
+      user_id: {
+        in: memberIds.map((id) => BigInt(id)),
+      },
+    },
+  });
+
+  return result.count; // Returns the number of deleted records
+}
