@@ -1,5 +1,5 @@
 import {
-  CommandInteraction,
+  ChatInputCommandInteraction,
   SlashCommandOptionsOnlyBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
@@ -17,7 +17,7 @@ type RegisteredCommands = (typeof commands)[number]['commandName'];
 export type CommandRoutes = {
   [key in RegisteredCommands]: (
     guildMember: GuildMember,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
   ) => void;
 };
 

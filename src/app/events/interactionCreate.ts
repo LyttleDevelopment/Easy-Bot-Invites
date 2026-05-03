@@ -20,7 +20,7 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
 
   // Get the user id
   const userId = interaction?.user?.id ?? interaction?.member?.user.id ?? null;
-  const inGuild = interaction?.inGuild() ?? !!interaction?.guildId ?? false;
+  const inGuild = Boolean(interaction.inGuild());
 
   // Check if the interaction is a DM
   if (!inGuild) {
@@ -34,7 +34,7 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
     }
 
     // Check if the interaction is a command
-    if (interaction.isCommand()) {
+    if (interaction.isChatInputCommand()) {
       return onPrivateInteractionCommand(user, interaction);
     }
 
@@ -74,7 +74,7 @@ async function interactionCreate(interaction: Interaction): Promise<void> {
     }
 
     // Check if the interaction is a command
-    if (interaction.isCommand()) {
+    if (interaction.isChatInputCommand()) {
       return onGuildInteractionCommand(guildMember, interaction);
     }
 

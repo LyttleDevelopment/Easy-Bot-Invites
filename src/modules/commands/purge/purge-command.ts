@@ -1,7 +1,5 @@
 import {
-  CacheType,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
+  ChatInputCommandInteraction,
   PermissionsBitField,
   SlashCommandBuilder,
   User,
@@ -53,7 +51,7 @@ export const purgeCommandData = {
 
 async function checkAdminOrOfficer(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ): Promise<boolean> {
   const guild = await getOrCreateGuild(guildMember.guildId);
   const adminRoles = guild.admin_roles.split(',');
@@ -89,7 +87,7 @@ async function checkAdminOrOfficer(
 
 export async function purgeCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
@@ -97,18 +95,14 @@ export async function purgeCommand(
   // Ensure the user is a member of the guild
   await getOrCreateMember(guildId, userId);
 
-  // Ensure interaction.options has correct type
-  const options =
-    interaction.options as CommandInteractionOptionResolver<CacheType>;
-
   // Check if the user has admin or officer privileges
   if (!(await checkAdminOrOfficer(guildMember, interaction))) return;
 
-  const subcommand = options.getSubcommand();
+  const subcommand = interaction.options.getSubcommand();
 
   if (subcommand === 'character') {
     // Purge by character name
-    const characterName = options.getString('name', true);
+    const characterName = interaction.options.getString('name', true);
     const deletedCount = await deleteCharacterByName(guildId, characterName);
 
     if (deletedCount === 0) {
@@ -123,7 +117,7 @@ export async function purgeCommand(
     }
   } else if (subcommand === 'member') {
     // Purge all characters of a specific member
-    const discordUser: User = options.getUser('user', true);
+    const discordUser: User = interaction.options.getUser('user', true);
     const memberId = discordUser.id;
     const deletedCount = await deleteCharactersByMember(guildId, memberId);
 

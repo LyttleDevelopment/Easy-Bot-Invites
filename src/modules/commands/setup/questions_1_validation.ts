@@ -1,12 +1,10 @@
 import { GuildMember } from '../../../types';
 import {
   ActionRowBuilder,
-  APIActionRowComponent,
-  APIMessageActionRowComponent,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  CommandInteraction,
+  ChatInputCommandInteraction,
 } from 'discord.js';
 import {
   setupCommandSetupFinish,
@@ -26,7 +24,7 @@ const suffix = `\n** **`;
 
 export async function setupCommandValidation1(
   guildMember: GuildMember,
-  interaction?: CommandInteraction,
+  interaction?: ChatInputCommandInteraction,
 ) {
   // Set next and previous actions
   setActiveSetupConversations(guildMember, {

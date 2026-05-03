@@ -1,10 +1,8 @@
 import { getGuildMemberKey, GuildMember } from '../../../types';
 import {
-  APIActionRowComponent,
-  APIMessageActionRowComponent,
   ButtonStyle,
   ChannelType,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   GuildBasedChannel,
   PermissionFlagsBits,
   Role,
@@ -29,7 +27,7 @@ export const setupCommandData = {
 export interface ActiveSetupConversation
   extends ActiveSetupConversationSettings {
   guildMember: GuildMember;
-  interaction: CommandInteraction;
+  interaction: ChatInputCommandInteraction;
 }
 
 export interface ActiveSetupConversationSettings {
@@ -59,7 +57,7 @@ export const activeSetupConversations = new Map<
 
 export async function setupCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
     return interaction.reply({

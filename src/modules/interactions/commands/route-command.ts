@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import { commandRoutes } from './routes';
 import { GuildMember } from '../../../types';
 
@@ -13,7 +13,7 @@ export const registeredCommandInteractions: string[] =
  */
 export async function routeCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   // Check if the route is available
   if (!registeredCommandInteractions.includes(interaction.commandName)) {

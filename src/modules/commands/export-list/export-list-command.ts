@@ -1,8 +1,6 @@
 import {
   AttachmentBuilder,
-  CacheType,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
+  ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from 'discord.js';
 import { Command } from '../../interactions/commands/command-types';
@@ -41,7 +39,7 @@ export const exportListCommandData = {
 
 export async function exportListCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
@@ -49,11 +47,8 @@ export async function exportListCommand(
   // Ensure the user is a member of the guild
   await getOrCreateMember(guildId, userId);
 
-  // Ensure interaction.options has correct type
-  const options =
-    interaction.options as CommandInteractionOptionResolver<CacheType>;
   // Get the export format from the user input
-  const format = options.getString('format', true);
+  const format = interaction.options.getString('format', true);
 
   // Fetch all characters in the guild
   const characters = await getGuildCharacters(guildId);

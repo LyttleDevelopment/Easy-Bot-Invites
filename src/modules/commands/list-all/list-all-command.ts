@@ -3,7 +3,7 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
 } from 'discord.js';
@@ -69,7 +69,7 @@ const userPages = new Map<string, number>();
 
 export async function listAllCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
   const guildId = interaction.guildId;
   const userId = interaction.user.id;

@@ -1,7 +1,5 @@
 import {
-  CacheType,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
+  ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from 'discord.js';
 import { Command } from '../../interactions/commands/command-types';
@@ -102,18 +100,15 @@ export const setCharacterCommandData = {
 
 export async function setCharacterCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
-  const options =
-    interaction.options as CommandInteractionOptionResolver<CacheType>;
-
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
-  const characterName = options.getString('name', true);
-  const characterClass = options.getString('class', true);
-  const mainSpec = options.getString('main_spec', true);
-  const offSpec = options.getString('off_spec', true);
-  const mainOrAlt = options.getString('main_or_alt', true);
+  const characterName = interaction.options.getString('name', true);
+  const characterClass = interaction.options.getString('class', true);
+  const mainSpec = interaction.options.getString('main_spec', true);
+  const offSpec = interaction.options.getString('off_spec', true);
+  const mainOrAlt = interaction.options.getString('main_or_alt', true);
 
   if (!guildId) {
     return interaction.reply({

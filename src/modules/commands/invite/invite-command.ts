@@ -4,7 +4,7 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   SlashCommandBuilder,
   TextChannel,
 } from 'discord.js';
@@ -27,7 +27,7 @@ export const inviteCommandData = {
 
 async function checkPermissions(
   guildMember: GuildMember,
-  interaction: CommandInteraction | ButtonInteraction,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
 ) {
   const guild = await getOrCreateGuild(guildMember.guildId);
   const inviteRoles = guild.admin_roles.split(',');
@@ -45,11 +45,11 @@ async function checkPermissions(
   return true;
 }
 
-export const activeInviteConversations = new Map<string, CommandInteraction>();
+export const activeInviteConversations = new Map<string, ChatInputCommandInteraction>();
 
 export async function inviteCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
   // Check if user has permission to invite a new member
   if (!(await checkPermissions(guildMember, interaction))) return;
@@ -83,7 +83,7 @@ export async function inviteCommandCreate(
 ) {
   // Check if user has permission to invite a new member
   if (!(await checkPermissions(guildMember, interaction))) return;
-  const commandInteraction: CommandInteraction = activeInviteConversations.get(
+  const commandInteraction: ChatInputCommandInteraction = activeInviteConversations.get(
     getGuildMemberKey(guildMember),
   );
   await commandInteraction.editReply({

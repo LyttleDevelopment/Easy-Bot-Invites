@@ -3,9 +3,7 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  CacheType,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
+  ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
 } from 'discord.js';
@@ -77,14 +75,11 @@ const createButtons = (page, totalPages) => {
 
 export async function listClassCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ) {
-  const options =
-    interaction.options as CommandInteractionOptionResolver<CacheType>;
-
   const guildId = interaction.guildId;
   const userId = interaction.user.id;
-  const className = options.getString('class', true);
+  const className = interaction.options.getString('class', true);
 
   await getOrCreateMember(guildId, userId);
   const characters = await getCharactersByClass(guildId, className);

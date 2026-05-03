@@ -1,4 +1,8 @@
 import {
+  SlashCommandOptionsOnlyBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
+} from 'discord.js';
+import {
   exportListCommandData,
   inviteCommandData,
   listAllCommandData,
@@ -8,6 +12,11 @@ import {
   setCharacterCommandData,
   setupCommandData,
 } from '../../commands';
+
+type CommandEntry = {
+  readonly commandName: string;
+  readonly commandData: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+};
 
 /**
  * All registered commands DATA
@@ -22,4 +31,4 @@ export const commands = [
   purgeCommandData,
   setCharacterCommandData,
   setupCommandData,
-] as const;
+] as const satisfies readonly CommandEntry[];

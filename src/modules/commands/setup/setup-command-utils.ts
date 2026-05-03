@@ -10,11 +10,11 @@ import {
   ActionRowBuilder,
   ActionRowData,
   APIActionRowComponent,
-  APIMessageActionRowComponent,
+  APIComponentInMessageActionRow,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  CommandInteraction,
+  ChatInputCommandInteraction,
   JSONEncodable,
   MessageActionRowComponentBuilder,
   MessageActionRowComponentData,
@@ -42,7 +42,7 @@ export function removeActiveSetupConversations(guildMember: GuildMember) {
   activeSetupConversations.delete(getGuildMemberKey(guildMember));
 }
 
-export async function sendOk(interaction: CommandInteraction) {
+export async function sendOk(interaction: ChatInputCommandInteraction) {
   const currentMessage = await interaction.fetchReply();
 
   // Add thumps up emoji to end of first line (currentMessage has many lines)
@@ -142,11 +142,11 @@ export function getStatus(asc: ActiveSetupConversation) {
 export function ascUpdateComponents(
   guildMember: GuildMember,
   components: (
-    | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>
+    | JSONEncodable<APIActionRowComponent<APIComponentInMessageActionRow>>
     | ActionRowData<
         MessageActionRowComponentData | MessageActionRowComponentBuilder
       >
-    | APIActionRowComponent<APIMessageActionRowComponent>
+    | APIActionRowComponent<APIComponentInMessageActionRow>
   )[],
 ) {
   const nav = setupCommandGetNavigation(guildMember);

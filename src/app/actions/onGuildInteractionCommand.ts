@@ -1,6 +1,6 @@
 import { executor } from '../../utils';
 import { actionPrefix } from './index';
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import { GuildMember } from '../../types';
 import { routeCommand } from '../../modules/interactions/commands/route-command';
 
@@ -10,7 +10,7 @@ const prefix: string = actionPrefix + 'onGuildInteractionCommand.';
 // The execute function
 export async function onGuildInteractionCommand(
   guildMember: GuildMember,
-  interaction: CommandInteraction,
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   // All actions that should be executed
   const actions: Promise<() => void>[] = [
