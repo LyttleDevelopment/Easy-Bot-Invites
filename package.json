@@ -18,7 +18,8 @@
     "dev:test": "jest -i",
     "setup": "npm run build && npm run update-commands",
     "docker:setup": "npm run prisma:generate && npm run build",
-    "docker:build": "docker build -t easy-bot-invites ."
+    "docker:build": "docker build -t easy-bot-invites .",
+    "update": "npm update --save && npx npm-check-updates -u && npm install"
   },
   "volta": {
     "node": "22.13.1"
@@ -29,21 +30,24 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/rest": "^2.4.2",
-    "@prisma/client": "^5.22.0",
-    "discord.js": "^14.17.3",
-    "dotenv": "^16.4.7"
+    "@discordjs/rest": "^2.6.1",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@types/node": "^18.19.75",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.8",
-    "prisma": "^5.22.0",
+    "@types/node": "^25.6.0",
+    "@types/pg": "^8.20.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.3",
+    "prisma": "^7.8.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.3"
   }
 }
