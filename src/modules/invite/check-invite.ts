@@ -2,7 +2,7 @@
 import { Collection, Invite } from 'discord.js';
 import client from '../../main';
 import { GuildMember } from '../../types';
-import { deleteInvites, findEveryInvite } from '../../database/handlers/invite';
+import { deleteInvites, findEveryInvite } from '../../database/handlers';
 import { cleanupInviteMembersById } from './cleanup-invite-members';
 
 type InviteCache = Collection<string, InviteCacheItem>;
@@ -50,7 +50,7 @@ export async function deleteUnknownInvites() {
   });
 
   for (const invite of unknownInvites) {
-    if (!invite.inviter.bot) {
+    if (invite.inviter && !invite.inviter.bot) {
       await invite.inviter.send(
         'Your invite has been deleted because it was not created using this bot.\n' +
           invite.url,
@@ -99,8 +99,11 @@ export async function updateInvitesCache(
   invites: Collection<string, Invite> | null = null,
 ) {
   try {
+    const guild =
+      client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
+
     if (!invites) {
-      invites = await client.guilds.cache.get(guildId).invites.fetch();
+      invites = await guild.invites.fetch();
     }
     const inviteMap = new Collection<string, InviteCacheInvite>();
 
@@ -126,7 +129,9 @@ export async function checkInvite(
   const cachedInvites = invitesCache.get(guildMember.guildId);
   if (!cachedInvites) return;
 
-  const guild = client.guilds.cache.get(guildMember.guildId);
+  const guild =
+    client.guilds.cache.get(guildMember.guildId) ??
+    (await client.guilds.fetch(guildMember.guildId));
 
   try {
     const newInvites = await guild.invites.fetch();

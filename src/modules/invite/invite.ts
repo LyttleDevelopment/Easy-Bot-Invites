@@ -3,18 +3,16 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Collection,
   GuildMember as DiscordGuildMember,
   Invite as DiscordInvite,
-  Role,
   TextChannel,
   User,
 } from 'discord.js';
 import { checkInvite } from './check-invite';
-import { findSingleInvite } from '../../database/handlers/invite';
 import {
   deleteMember,
   findSingleGuild,
+  findSingleInvite,
   findSingleMember,
   setMemberValue,
 } from '../../database/handlers';
@@ -125,13 +123,14 @@ export async function onMemberAdd(
     }
     return;
   }
-  await triggerNewMember(guildMember, true, invite, db_invite, db_guild);
+  await triggerNewMember(guildMember, true, invite, db_invite, db_guild, member);
 }
 
 export async function onButtonPress(user: User, stays: boolean) {
-  const { guildMember, invite, db_invite, db_guild } = awaitingStay.get(
-    user.id,
-  );
+  const stayState = awaitingStay.get(user.id);
+  if (!stayState) return;
+
+  const { guildMember, invite, db_invite, db_guild } = stayState;
   awaitingStay.delete(user.id);
   return triggerNewMember(guildMember, stays, invite, db_invite, db_guild);
 }
@@ -142,28 +141,40 @@ export async function triggerNewMember(
   invite: DiscordInvite,
   db_invite: PrismaInvite,
   db_guild: Guild,
+  initialMember?: DiscordGuildMember,
 ) {
-  const member = client.guilds.cache
-    .get(guildMember.guildId)
-    ?.members.cache.get(guildMember.userId);
+  const guild =
+    client.guilds.cache.get(guildMember.guildId) ??
+    (await client.guilds.fetch(guildMember.guildId));
+
+  const member =
+    initialMember ??
+    guild.members.cache.get(guildMember.userId) ??
+    (await guild.members.fetch(guildMember.userId).catch(() => null));
+
+  if (!member) return;
 
   // Assign roles
   const roleIds: string[] = [];
-  let roles: Collection<string, Role> = new Collection();
   switch (db_invite.type) {
     case 'guild':
-      db_guild.guild_roles.split(',').map((role) => roleIds.push(role));
+      db_guild.guild_roles
+        ?.split(',')
+        .map((role) => role.trim())
+        .filter(Boolean)
+        .forEach((role) => roleIds.push(role));
       break;
     case 'pug__stay':
       if (stays)
-        db_guild.pug_roles.split(',').map((role) => roleIds.push(role));
+        db_guild.pug_roles
+          ?.split(',')
+          .map((role) => role.trim())
+          .filter(Boolean)
+          .forEach((role) => roleIds.push(role));
       break;
   }
   if (roleIds.length > 0) {
-    roles = member.guild.roles.cache.filter((role) =>
-      roleIds.includes(role.id),
-    );
-    await member.roles.add(roles);
+    await member.roles.add(roleIds);
   }
 
   // Send welcome message
@@ -210,7 +221,9 @@ export async function triggerNewMember(
     }\n- Invite Expires: ${
       kick_at !== null ? `<t:${getDiscordTime(kick_at)}:R>` : 'Never'
     }\n- Invite created by: <@${db_invite.creator}>\n- Roles: ${
-      roleIds.length > 0 ? roles.map((role) => role).join(', ') : 'None'
+      roleIds.length > 0
+        ? roleIds.map((roleId) => `<@&${roleId}>`).join(', ')
+        : 'None'
     }`,
   );
 }
