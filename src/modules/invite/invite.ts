@@ -22,6 +22,7 @@ import { Guild, Invite as PrismaInvite } from '@prisma/client';
 import client from '../../main';
 import { KICK_TIME } from '../../../constants';
 import { kickPlayer } from './cleanup-invite-members';
+import { formatInviteType } from './format-invite-type';
 
 export async function unauthorizedInvite(member: DiscordGuildMember) {
   await kickPlayer(member, 'Unauthorized invite used');
@@ -202,9 +203,8 @@ export async function triggerNewMember(
   if (!message) return unauthorizedInvite(member);
   await member.user.send(getMessage(message, { user: member.user }));
 
-  const niceType = db_invite.type
-    .replace('__', ' ')
-    .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
+  const niceType = formatInviteType(db_invite.type);
+  const effectiveInviteExpiry = kick_at ?? db_invite.kick_at;
 
   // Log to the admin channel
   const adminChannel = member.guild.channels.cache.get(
@@ -219,7 +219,9 @@ export async function triggerNewMember(
     )}:R>\n- Invite: ${`<${invite.url}>`}\n- Invite Type: ${
       kick_at !== null ? `Pug Raid (Original invite: ${niceType})` : niceType
     }\n- Invite Expires: ${
-      kick_at !== null ? `<t:${getDiscordTime(kick_at)}:R>` : 'Never'
+      effectiveInviteExpiry
+        ? `<t:${getDiscordTime(effectiveInviteExpiry)}:R>`
+        : 'Never'
     }\n- Invite created by: <@${db_invite.creator}>\n- Roles: ${
       roleIds.length > 0
         ? roleIds.map((roleId) => `<@&${roleId}>`).join(', ')

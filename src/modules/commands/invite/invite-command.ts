@@ -13,6 +13,7 @@ import { createInvite, getOrCreateGuild } from '../../../database/handlers';
 import client from '../../../main';
 import { getDiscordTime } from '../../../utils/get-discord-time';
 import { KICK_TIME } from '../../../../constants';
+import { formatInviteType } from '../../invite/format-invite-type';
 
 export const commandName = 'invite' as const;
 
@@ -116,9 +117,7 @@ export async function inviteCommandCreate(
     creator: guildMember.userId,
   });
 
-  const niceType = type
-    .replace('__', ' ')
-    .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
+  const niceType = formatInviteType(type);
 
   await commandInteraction.editReply({
     content: `# Invite created:\n- ${invite.url}\n- Expires: ${
