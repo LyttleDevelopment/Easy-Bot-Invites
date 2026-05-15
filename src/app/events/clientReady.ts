@@ -4,7 +4,7 @@ import { onClientReady } from '../actions/onClientReady';
 export let isReady: boolean = false;
 
 // Emitted when the client becomes ready to start working.
-async function ready(client: Client): Promise<void> {
+async function clientReady(client: Client): Promise<void> {
   // Set ready state
   isReady = true;
 
@@ -12,4 +12,4 @@ async function ready(client: Client): Promise<void> {
   await onClientReady(client);
 }
 
-export default ready;
+export default clientReady;
